@@ -58,7 +58,7 @@ struct Goomba : public Object
     b2PolygonShape* box = nullptr;
     
     GraphicsComponent component = GraphicsComponent();
-}
+};
 
 
 struct Tile : public Object
