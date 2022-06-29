@@ -34,9 +34,9 @@ void Player::Update()
 		body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -5.0f));
 		on_ground = false;
 	}
-
+    
 	body->GetContactList();
-
+    
 	pos = body->GetWorldPoint(Vector2D(-0.5f, -1.25f));
 }
 
@@ -50,19 +50,19 @@ void Player::Draw()
 		{
 			component.tic = 10;
 		} break;
-
+        
 		case SPRITE_PUNK_WALK:
 		{
 			component.tic = 6;
 		} break;
 	}
-
+    
 	component.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
-
+    
 	component.SetFlipOrigin();
 	component.Draw();
 	component.NextSprite();
-
+    
 	//DrawBody(*body, *box, 3);
 	//DrawBody(*body, *ground_sensor, 3);
 }
@@ -96,6 +96,12 @@ void Player::EndContact(Object* obj, b2Fixture* fixture)
 }
 
 
+void Goomba::Update()
+{
+    
+}
+
+
 void Tile::Update()
 {
 	pos = body->GetWorldPoint(Vector2D(-1.0f, -1.0f));
@@ -105,24 +111,24 @@ void Tile::Update()
 void Tile::Draw()
 {
 	//TODO(): See if you can extract a component out of this :) DONE()
-
+    
 	graphics.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
 	graphics.Draw();
-
-
+    
+    
 #ifdef COLLISION_DEBUG
-
+    
 	for (int i = 0; i < 4; i++)
 	{
 		b2EdgeShape edge = shape[i];
-
+        
 		Vector2D v0 = body->GetWorldPoint(edge.m_vertex1);
 		Vector2D v1 = body->GetWorldPoint(edge.m_vertex2);
-
+        
 		DrawLineEx({ v0.x * METER_TO_PIXEL_RATIO, v0.y * METER_TO_PIXEL_RATIO },
-			   { v1.x * METER_TO_PIXEL_RATIO, v1.y * METER_TO_PIXEL_RATIO },
-			   4,
-			   BLUE);
+                   { v1.x * METER_TO_PIXEL_RATIO, v1.y * METER_TO_PIXEL_RATIO },
+                   4,
+                   BLUE);
 	}
 #endif
 }

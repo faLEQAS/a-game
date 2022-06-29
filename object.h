@@ -17,43 +17,58 @@ enum ObjectType
 
 struct Object
 {
-public:
-		ObjectType type = ObjectType::OBJECT_NONE;
-		virtual void Update() {};
-		virtual void Draw() {};
-		virtual void StartContact(Object* obj, b2Fixture* fixture) {};
-		virtual void EndContact(Object* obj, b2Fixture* fixture) {};
-
-		bool active = true;
-		Vector2D pos = {};
+    public:
+    ObjectType type = ObjectType::OBJECT_NONE;
+    virtual void Update() {};
+    virtual void Draw() {};
+    virtual void StartContact(Object* obj, b2Fixture* fixture) {};
+    virtual void EndContact(Object* obj, b2Fixture* fixture) {};
+    
+    bool active = true;
+    Vector2D pos = {};
 };
 
 
 struct Player : public Object
 {
-public:
-		void Update() override;
-		void Draw() override;
-		void StartContact(Object* obj, b2Fixture* fixture) override;
-		void EndContact(Object* obj, b2Fixture* fixture) override;
-		
-		b2Body* body = nullptr;
-		b2PolygonShape* box = nullptr;
-		bool on_ground = false;
-		b2PolygonShape* ground_sensor = nullptr;
-
-		GraphicsComponent component = GraphicsComponent();
+    public:
+    void Update() override;
+    void Draw() override;
+    void StartContact(Object* obj, b2Fixture* fixture) override;
+    void EndContact(Object* obj, b2Fixture* fixture) override;
+    
+    b2Body* body = nullptr;
+    b2PolygonShape* box = nullptr;
+    bool on_ground = false;
+    b2PolygonShape* ground_sensor = nullptr;
+    
+    GraphicsComponent component = GraphicsComponent();
 };
+
+
+struct Goomba : public Object
+{
+    public:
+    void Update() override;
+    void Draw() override;
+    void StartContact(Object* obj, b2Fixture* fixture) override;
+    void EndContact(Object* obj, b2Fixture* fixture) override;
+    
+    b2Body* body = nullptr;
+    b2PolygonShape* box = nullptr;
+    
+    GraphicsComponent component = GraphicsComponent();
+}
 
 
 struct Tile : public Object
 {
-public:
-		void Update() override;
-		void Draw() override;
-
-		b2Body* body = nullptr;
-		b2EdgeShape shape[4] = {};
-
-		GraphicsComponent graphics = GraphicsComponent();
+    public:
+    void Update() override;
+    void Draw() override;
+    
+    b2Body* body = nullptr;
+    b2EdgeShape shape[4] = {};
+    
+    GraphicsComponent graphics = GraphicsComponent();
 };
