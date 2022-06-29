@@ -12,7 +12,8 @@ enum ObjectType
 	OBJECT_NONE,
 	PLAYER,
 	TILE,
-	TILE_JUMP
+	TILE_JUMP,
+    GOOMBA
 };
 
 struct Object
@@ -42,7 +43,7 @@ struct Player : public Object
     bool on_ground = false;
     b2PolygonShape* ground_sensor = nullptr;
     
-    GraphicsComponent component = GraphicsComponent();
+    GraphicsComponent graphics = GraphicsComponent();
 };
 
 
@@ -54,10 +55,19 @@ struct Goomba : public Object
     void StartContact(Object* obj, b2Fixture* fixture) override;
     void EndContact(Object* obj, b2Fixture* fixture) override;
     
-    b2Body* body = nullptr;
-    b2PolygonShape* box = nullptr;
+    b2Body* body = nullptr; //the dynamic body
+    b2Body* shadow_body = nullptr; //the kinematic shadow body
     
-    GraphicsComponent component = GraphicsComponent();
+    //we have 2 bodies to prevent the body being pushed
+    
+    b2PolygonShape* box = nullptr;
+    b2PolygonShape* shadow_box = nullptr;
+    b2PolygonShape* ground_sensor = nullptr;
+    
+    bool just_changed_dir = false;
+    int dir = 1;
+    
+    GraphicsComponent graphics  = GraphicsComponent();
 };
 
 
