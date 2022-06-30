@@ -43,6 +43,8 @@ struct Player : public Object
     bool on_ground = false;
     b2PolygonShape* ground_sensor = nullptr;
     
+    int attack_time = 0;
+    
     GraphicsComponent graphics = GraphicsComponent();
 };
 
@@ -64,7 +66,7 @@ struct Goomba : public Object
     b2PolygonShape* shadow_box = nullptr;
     b2PolygonShape* ground_sensor = nullptr;
     
-    bool just_changed_dir = false;
+    int dir_change_tic = 0;
     int dir = 1;
     
     GraphicsComponent graphics  = GraphicsComponent();

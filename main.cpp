@@ -55,7 +55,7 @@ Player* CreatePlayer(b2World* world, Vector2D pos)
 	def.userData.pointer = (uintptr_t)object;
     
 	b2PolygonShape shape;
-	shape.SetAsBox(0.32f, 0.75f, Vector2D(0, -0.25f), 0);
+	shape.SetAsBox(0.32f, 0.60f, Vector2D(0, -0.10f), 0);
 	b2PolygonShape shape2;
 	shape2.SetAsBox(0.3f, 0.1f, Vector2D(0, 0.65f), 0);
     
@@ -141,7 +141,7 @@ Goomba* CreateGoomba(b2World* world, Vector2D pos)
 	def.userData.pointer = (uintptr_t)object;
     
     b2PolygonShape shape;
-	shape.SetAsBox(0.32f, 0.75f, Vector2D(0, -0.25f), 0);
+	shape.SetAsBox(0.32f, 0.60f, Vector2D(0, -0.10f), 0);
 	b2PolygonShape shape2;
 	shape2.SetAsBox(0.3f, 0.1f, Vector2D(0, 0.65f), 0);
     
@@ -192,8 +192,8 @@ int main(void)
     
 	SetTargetFPS(60);
     
-	CreatePlayer(&world, Vector2D(4.5f, 3.0f));
-    CreateGoomba(&world, Vector2D(2.5f, 0.0f));
+	Player* p = CreatePlayer(&world, Vector2D(4.5f, 3.0f));
+    Goomba* g = CreateGoomba(&world, Vector2D(2.5f, 0.0f));
     CreateTile(&world, Vector2D(1.0f, 4.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(1.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(3.0f, 6.0f), ObjectType::TILE);
@@ -216,6 +216,11 @@ int main(void)
         
 		Update(&world, timestep, velocity_iterations, position_iterations);
 		Draw();
+        
+        //Vector2D start = p->body->GetPosition();
+        //Vector2D end = Vector2D(start.x + 10.0f, start.y);
+        
+        //world.
         
 		tic++;
 	}

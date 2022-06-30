@@ -14,28 +14,34 @@ void Player::Update()
 		graphics.flip_h = false;
 		graphics.sprite_id = SPRITE_PUNK_WALK;
 	}
+    
 	else if (IsKeyDown(KEY_LEFT))
 	{
 		body->SetLinearVelocity(Vector2D(-3.0f, body->GetLinearVelocity().y));
 		graphics.flip_h = true;
 		graphics.sprite_id = SPRITE_PUNK_WALK;
 	}
+    
 	else
 	{
 		body->SetLinearVelocity(Vector2D(0, body->GetLinearVelocity().y));
 		graphics.sprite_id = SPRITE_PUNK_IDLE;
 	}
-	if (body->GetLinearVelocity().y > 0)
-	{
-		on_ground = false;
-	}
+	
 	if (IsKeyDown(KEY_SPACE) && on_ground)
 	{
-		body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -5.0f));
+		body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -7.0f));
 		on_ground = false;
 	}
     
+    if (IsKeyDown(KEY_X))
+    {
+        attack_time = 6;
+    }
+    
 	pos = body->GetWorldPoint(Vector2D(-0.5f, -1.25f));
+    
+    
 }
 
 
@@ -75,26 +81,43 @@ void Player::StartContact(Object* obj, b2Fixture* fixture)
 		{
 			body->SetLinearVelocity({ body->GetLinearVelocity().x, -5.0f });
         }
-		//printf("DOWN\n");
+        else if (obj->type == ObjectType::GOOMBA)
+        {
+            Goomba* goomba = (Goomba*)obj;
+        }
 	}
     else if (obj->type == ObjectType::GOOMBA)
     {
-        body->SetLinearVelocity({ 0, -10.0f });
+        
+        if (attack_time > 0)
+        {
+            //attack the goomba
+            Goomba* goomba = (Goomba*)obj;
+            goomba->body->SetLinearVelocity({ 0, -10.0f});
+        }
+        else
+        {
+            //get attacked by the goomba
+            body->SetLinearVelocity({ 0,
+                                        -10.0f });
+        }
     }
+    
+    if (attack_time > 0)
+    {
+        attack_time--;
+    }
+    
+    
 }
 
 
 void Player::EndContact(Object* obj, b2Fixture* fixture)
 {
-	//if (fixture->GetShape() == ground_sensor)
-	//{
-	//	on_ground = false;
-	//	if (obj->type == TILE_JUMP)
-	//	{
-	//		body->SetLinearVelocity({ body->GetLinearVelocity().x, -5.0f });
-	//	}
-	//	//printf("DOWN\n");
-	//}
+	if (fixture->GetShape() == ground_sensor)
+    {
+        on_ground = false;
+    }
 }
 
 
@@ -124,20 +147,15 @@ void Goomba::StartContact(Object* obj, b2Fixture* fixture)
 {
     if (fixture->GetShape() != ground_sensor)
     {
-        if (!just_changed_dir)
+        if ((GetTic() - dir_change_tic) >= 20)
         {
-            if (dir == 1)
-            {
-                dir = -1;
-                just_changed_dir = true;
-                graphics.flip_h = true;
-            }
-            else if (dir == -1)
-            {
-                dir = 1;
-                just_changed_dir = true;
-                graphics.flip_h = false;
-            }
+            dir *= -1;
+            graphics.flip_h = !graphics.flip_h;
+            dir_change_tic = GetTic();
+        }
+        else
+        {
+            
         }
     }
 }
@@ -145,37 +163,37 @@ void Goomba::StartContact(Object* obj, b2Fixture* fixture)
 
 void Goomba::EndContact(Object* obj, b2Fixture* fixture)
 {
-    just_changed_dir = false;
+    //just_changed_dir = false;
 }
 
 
 void Tile::Update()
 {
-	pos = body->GetWorldPoint(Vector2D(-1.0f, -1.0f));
+    pos = body->GetWorldPoint(Vector2D(-1.0f, -1.0f));
 }
 
 
 void Tile::Draw()
 {
-	//TODO(): See if you can extract a component out of this :) DONE()
+    //TODO(): See if you can extract a component out of this :) DONE()
     
-	graphics.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
-	graphics.Draw();
+    graphics.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
+    graphics.Draw();
     
     
 #ifdef COLLISION_DEBUG
     
-	for (int i = 0; i < 4; i++)
-	{
-		b2EdgeShape edge = shape[i];
+    for (int i = 0; i < 4; i++)
+    {
+        b2EdgeShape edge = shape[i];
         
-		Vector2D v0 = body->GetWorldPoint(edge.m_vertex1);
-		Vector2D v1 = body->GetWorldPoint(edge.m_vertex2);
+        Vector2D v0 = body->GetWorldPoint(edge.m_vertex1);
+        Vector2D v1 = body->GetWorldPoint(edge.m_vertex2);
         
-		DrawLineEx({ v0.x * METER_TO_PIXEL_RATIO, v0.y * METER_TO_PIXEL_RATIO },
+        DrawLineEx({ v0.x * METER_TO_PIXEL_RATIO, v0.y * METER_TO_PIXEL_RATIO },
                    { v1.x * METER_TO_PIXEL_RATIO, v1.y * METER_TO_PIXEL_RATIO },
                    4,
                    BLUE);
-	}
+    }
 #endif
 }
