@@ -9,7 +9,7 @@
 #include "asset_manager.h"
 #include "consts.h"
 #include "object.h"
-
+#include "raycast_callback.h"
 
 static bool collision_debug = true;
 static AssetManager* asset_manager = nullptr;
@@ -185,6 +185,7 @@ int main(void)
     
 	ContactListener listener = ContactListener();
 	world.SetContactListener(&listener);
+    RayCastCallback raycast_callback = RayCastCallback();
     
 	float timestep = 1.0f / 60.0f;
 	uint32 velocity_iterations = 5;
@@ -217,10 +218,16 @@ int main(void)
 		Update(&world, timestep, velocity_iterations, position_iterations);
 		Draw();
         
-        //Vector2D start = p->body->GetPosition();
-        //Vector2D end = Vector2D(start.x + 10.0f, start.y);
+        Vector2D start = p->body->GetPosition();
+        Vector2D end = Vector2D(start.x + 10.0f, start.y);
         
-        //world.
+        Vector2 p1 = {start.x * METER_TO_PIXEL_RATIO, start.y * METER_TO_PIXEL_RATIO};
+        Vector2 p2 = {end.x * METER_TO_PIXEL_RATIO,
+            end.y * METER_TO_PIXEL_RATIO};
+        
+        world.RayCast(&raycast_callback, start, end);
+        
+        DrawLineEx(p1, p2, 4, YELLOW);
         
 		tic++;
 	}
