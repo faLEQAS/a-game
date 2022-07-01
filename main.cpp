@@ -150,12 +150,14 @@ Goomba* CreateGoomba(b2World* world, Vector2D pos)
 	fixdef.density = 1.0f;
 	fixdef.friction = 0.3f;
     fixdef.filter.groupIndex = -1;
+    fixdef.userData.pointer = (uintptr_t)object;
     
 	b2FixtureDef fixdef2;
 	fixdef2.shape = &shape2;
 	fixdef2.density = 1.0f;
 	fixdef2.friction = 0.3f;
     fixdef2.filter.groupIndex = -1;
+    fixdef2.userData.pointer = (uintptr_t)object;
     
     
 	object->body = CreateBody(*world, def, nullptr, 0);
@@ -185,7 +187,7 @@ int main(void)
     
 	ContactListener listener = ContactListener();
 	world.SetContactListener(&listener);
-    RayCastCallback raycast_callback = RayCastCallback();
+    
     
 	float timestep = 1.0f / 60.0f;
 	uint32 velocity_iterations = 5;
@@ -203,6 +205,9 @@ int main(void)
 	CreateTile(&world, Vector2D(9.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(11.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(15.0f, 6.0f), ObjectType::TILE_JUMP);
+    
+    RayCastCallback raycast_callback = RayCastCallback();
+    raycast_callback.A = (Object*)p;
     
 	while (!WindowShouldClose())
 	{

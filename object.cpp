@@ -42,6 +42,10 @@ void Player::Update()
 	pos = body->GetWorldPoint(Vector2D(-0.5f, -1.25f));
     
     
+    
+    
+    
+    
 }
 
 
@@ -72,6 +76,16 @@ void Player::Draw()
 }
 
 
+void Player::OnRayCastHit(Object* B, b2Fixture* fixture, float fraction)
+{
+    if (true)
+    {
+        printf("IT HIT OBJECT OF TYPE %d\n", -1);
+    }
+    return 0;
+}
+
+
 void Player::StartContact(Object* obj, b2Fixture* fixture)
 {
 	if (fixture->GetShape() == ground_sensor)
@@ -88,6 +102,11 @@ void Player::StartContact(Object* obj, b2Fixture* fixture)
 	}
     else if (obj->type == ObjectType::GOOMBA)
     {
+        /*bool RayCast(b2RayCastOutput* output, const b2RayCastInput& input,
+        
+        const b2Transform& transform, int32 childIndex) const override;*/
+        
+        
         
         if (attack_time > 0)
         {

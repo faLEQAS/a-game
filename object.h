@@ -24,6 +24,7 @@ struct Object
     virtual void Draw() {};
     virtual void StartContact(Object* obj, b2Fixture* fixture) {};
     virtual void EndContact(Object* obj, b2Fixture* fixture) {};
+    virtual float OnRayCastHit(Object* B, b2Fixture* fixture, float fraction) {return 0};
     
     bool active = true;
     Vector2D pos = {};
@@ -37,6 +38,7 @@ struct Player : public Object
     void Draw() override;
     void StartContact(Object* obj, b2Fixture* fixture) override;
     void EndContact(Object* obj, b2Fixture* fixture) override;
+    float OnRayCastHit(Object* B, b2Fixture* fixture, float fraction) override;
     
     b2Body* body = nullptr;
     b2PolygonShape* box = nullptr;
