@@ -16,6 +16,7 @@ static AssetManager* asset_manager = nullptr;
 
 static Object* objects[MAX_OBJS] = {};
 static int tic = 0;
+static b2World* worldptr = nullptr;
 
 
 b2Body* CreateBody(b2World& world, b2BodyDef& def, b2Shape* fixtures, int fixture_count);
@@ -32,6 +33,11 @@ void Draw();
 int GetTic()
 {
 	return tic;
+}
+
+b2World* GetWorld()
+{
+    return worldptr;
 }
 
 
@@ -63,14 +69,17 @@ Player* CreatePlayer(b2World* world, Vector2D pos)
 	fixdef.shape = &shape;
 	fixdef.density = 1.0f;
 	fixdef.friction = 0.3f;
+    fixdef.userData.pointer = (uintptr_t)object;
     
 	b2FixtureDef fixdef2;
 	fixdef2.shape = &shape2;
 	fixdef2.density = 1.0f;
 	fixdef2.friction = 0.3f;
+    fixdef2.userData.pointer = (uintptr_t)object;
     
     
 	object->body = CreateBody(*world, def, nullptr, 0);
+    object->dir = 1;
 	object->box = (b2PolygonShape*)object->body->CreateFixture(&fixdef)->GetShape();
 	object->ground_sensor = (b2PolygonShape*)object->body->CreateFixture(&fixdef2)->GetShape();
 	
@@ -185,6 +194,8 @@ int main(void)
 	b2Vec2 gravity = b2Vec2(0.0f, 8.0f);
 	b2World world = b2World(gravity);
     
+    worldptr = &world;
+    
 	ContactListener listener = ContactListener();
 	world.SetContactListener(&listener);
     
@@ -206,8 +217,6 @@ int main(void)
 	CreateTile(&world, Vector2D(11.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(15.0f, 6.0f), ObjectType::TILE_JUMP);
     
-    RayCastCallback raycast_callback = RayCastCallback();
-    raycast_callback.A = (Object*)p;
     
 	while (!WindowShouldClose())
 	{
@@ -223,16 +232,7 @@ int main(void)
 		Update(&world, timestep, velocity_iterations, position_iterations);
 		Draw();
         
-        Vector2D start = p->body->GetPosition();
-        Vector2D end = Vector2D(start.x + 10.0f, start.y);
         
-        Vector2 p1 = {start.x * METER_TO_PIXEL_RATIO, start.y * METER_TO_PIXEL_RATIO};
-        Vector2 p2 = {end.x * METER_TO_PIXEL_RATIO,
-            end.y * METER_TO_PIXEL_RATIO};
-        
-        world.RayCast(&raycast_callback, start, end);
-        
-        DrawLineEx(p1, p2, 4, YELLOW);
         
 		tic++;
 	}

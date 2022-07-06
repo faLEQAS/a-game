@@ -6,7 +6,10 @@ float RayCastCallback::ReportFixture(b2Fixture* B, const b2Vec2& point, const b2
     Object* object = (Object*)B->GetUserData().pointer;
     if (A)
     {
-        return A->OnRayCastHit(object, B);
+        if (A != object)
+        {
+            return A->OnRayCastHit(object, B, fraction);
+        }
     }
     return 0;
 }

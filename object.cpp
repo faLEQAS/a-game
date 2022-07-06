@@ -4,102 +4,152 @@
 #include "asset_manager.h"
 #include <stdio.h>
 #include "consts.h"
+#include "raycast_callback.h"
 
 
 void Player::Update()
 {
-	if (IsKeyDown(KEY_RIGHT))
-	{
-		body->SetLinearVelocity(Vector2D(3.0f, body->GetLinearVelocity().y));
-		graphics.flip_h = false;
-		graphics.sprite_id = SPRITE_PUNK_WALK;
-	}
-    
-	else if (IsKeyDown(KEY_LEFT))
-	{
-		body->SetLinearVelocity(Vector2D(-3.0f, body->GetLinearVelocity().y));
-		graphics.flip_h = true;
-		graphics.sprite_id = SPRITE_PUNK_WALK;
-	}
-    
-	else
-	{
-		body->SetLinearVelocity(Vector2D(0, body->GetLinearVelocity().y));
-		graphics.sprite_id = SPRITE_PUNK_IDLE;
-	}
-	
-	if (IsKeyDown(KEY_SPACE) && on_ground)
-	{
-		body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -7.0f));
-		on_ground = false;
-	}
-    
-    if (IsKeyDown(KEY_X))
+    if (attacked_time == 0)
     {
-        attack_time = 6;
+        if (IsKeyDown(KEY_RIGHT))
+        {
+            body->SetLinearVelocity(Vector2D(3.0f, body->GetLinearVelocity().y));
+            graphics.flip_h = false;
+            graphics.sprite_id = SPRITE_PUNK_WALK;
+            dir = 1;
+        }
+        
+        else if (IsKeyDown(KEY_LEFT))
+        {
+            body->SetLinearVelocity(Vector2D(-3.0f, body->GetLinearVelocity().y));
+            graphics.flip_h = true;
+            graphics.sprite_id = SPRITE_PUNK_WALK;
+            dir = -1;
+        }
+        
+        else
+        {
+            body->SetLinearVelocity(Vector2D(0, body->GetLinearVelocity().y));
+            graphics.sprite_id = SPRITE_PUNK_IDLE;
+        }
+        
+        if (IsKeyDown(KEY_SPACE) && on_ground)
+        {
+            body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -7.0f));
+            on_ground = false;
+        }
+        
+        if (IsKeyDown(KEY_X))
+        {
+            attack_time = 6;
+        }
     }
     
 	pos = body->GetWorldPoint(Vector2D(-0.5f, -1.25f));
     
+    RayCastCallback raycast_callback = RayCastCallback();
+    raycast_callback.A = this;
     
+    Vector2D start = {};
+    Vector2D end = {};
+
+    if (dir == 1)
+    {
+        start = body->GetWorldPoint(Vector2D(0, 0));
+        end = body->GetWorldPoint(Vector2D(1.0f, 0));
+    }
+    else if (dir == -1)
+    {
+        end = body->GetWorldPoint(Vector2D(-1.0f, 0));
+        start = body->GetWorldPoint(Vector2D(0, 0));
+    }
     
+    Vector2 p1 = {start.x * METER_TO_PIXEL_RATIO, start.y * METER_TO_PIXEL_RATIO};
+    Vector2 p2 = {end.x * METER_TO_PIXEL_RATIO,
+        end.y * METER_TO_PIXEL_RATIO};
     
+    GetWorld()->RayCast(&raycast_callback, start, end);
     
+    DrawLineEx(p1, p2, 4, YELLOW);
     
+    if (attack_time > 0)
+    {
+        attack_time--;
+    }
+    if (attacked_time > 0)
+    {
+        attacked_time--;
+    }
 }
 
 
 void Player::Draw()
 {
-	//TODO(): See if you can extract a component out of this :) DONE()
-	switch (graphics.sprite_id)
-	{
-		case SPRITE_PUNK_IDLE:
-		{
-			graphics.tic = 10;
-		} break;
+    //TODO(): See if you can extract a component out of this :) DONE()
+    switch (graphics.sprite_id)
+    {
+        case SPRITE_PUNK_IDLE:
+        {
+            graphics.tic = 10;
+        } break;
         
-		case SPRITE_PUNK_WALK:
-		{
-			graphics.tic = 6;
-		} break;
-	}
+        case SPRITE_PUNK_WALK:
+        {
+            graphics.tic = 6;
+        } break;
+    }
     
-	graphics.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
+    graphics.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
     
-	graphics.SetFlipOrigin();
-	graphics.Draw();
-	graphics.NextSprite();
+    graphics.SetFlipOrigin();
+    graphics.Draw();
+    graphics.NextSprite();
     
-	//DrawBody(*body, *box, 3);
-	//DrawBody(*body, *ground_sensor, 3);
+    //DrawBody(*body, *box, 3);
+    //DrawBody(*body, *ground_sensor, 3);
 }
 
 
-void Player::OnRayCastHit(Object* B, b2Fixture* fixture, float fraction)
+float Player::OnRayCastHit(Object* B, b2Fixture* fixture, float fraction)
 {
-    if (true)
+    if (B)
     {
-        printf("IT HIT OBJECT OF TYPE %d\n", -1);
+        if (B->type == ObjectType::GOOMBA)
+        {
+            if (attack_time > 0)
+            {
+                Goomba* goomba = (Goomba*)B;
+                float velocity = 0;
+                goomba->body->SetTransform(Vector2D(0, 0), 0);
+            }
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
-    return 0;
+    else
+    {
+        return 1;
+    }
 }
 
 
 void Player::StartContact(Object* obj, b2Fixture* fixture)
 {
-	if (fixture->GetShape() == ground_sensor)
-	{
-		on_ground = true;
-		if (obj->type == TILE_JUMP)
-		{
-			body->SetLinearVelocity({ body->GetLinearVelocity().x, -5.0f });
+    if (fixture->GetShape() == ground_sensor)
+    {
+        on_ground = true;
+        if (obj->type == TILE_JUMP)
+        {
+            body->SetLinearVelocity({ body->GetLinearVelocity().x, -5.0f });
         }
         else if (obj->type == ObjectType::GOOMBA)
         {
             Goomba* goomba = (Goomba*)obj;
         }
-	}
+    }
     else if (obj->type == ObjectType::GOOMBA)
     {
         /*bool RayCast(b2RayCastOutput* output, const b2RayCastInput& input,
@@ -108,34 +158,27 @@ void Player::StartContact(Object* obj, b2Fixture* fixture)
         
         
         
-        if (attack_time > 0)
+        //if (last_hit == obj)
         {
-            //attack the goomba
-            Goomba* goomba = (Goomba*)obj;
-            goomba->body->SetLinearVelocity({ 0, -10.0f});
+            
         }
-        else
+        //else
         {
             //get attacked by the goomba
-            body->SetLinearVelocity({ 0,
+            attacked_time = 5;
+            body->SetLinearVelocity({ -10.0f,
                                         -10.0f });
         }
     }
-    
-    if (attack_time > 0)
-    {
-        attack_time--;
-    }
-    
     
 }
 
 
 void Player::EndContact(Object* obj, b2Fixture* fixture)
 {
-	if (fixture->GetShape() == ground_sensor)
+    if (fixture->GetShape() == ground_sensor)
     {
-        on_ground = false;
+        //on_ground = false;
     }
 }
 

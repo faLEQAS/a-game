@@ -24,7 +24,7 @@ struct Object
     virtual void Draw() {};
     virtual void StartContact(Object* obj, b2Fixture* fixture) {};
     virtual void EndContact(Object* obj, b2Fixture* fixture) {};
-    virtual float OnRayCastHit(Object* B, b2Fixture* fixture, float fraction) {return 0};
+    virtual float OnRayCastHit(Object* B, b2Fixture* fixture, float fraction) {return 0;};
     
     bool active = true;
     Vector2D pos = {};
@@ -41,11 +41,15 @@ struct Player : public Object
     float OnRayCastHit(Object* B, b2Fixture* fixture, float fraction) override;
     
     b2Body* body = nullptr;
+    int dir = 0;
     b2PolygonShape* box = nullptr;
     bool on_ground = false;
     b2PolygonShape* ground_sensor = nullptr;
     
-    int attack_time = 0;
+    int attack_time = 0; //used for the amount of time an attack lasts
+    int attacked_time = 0; //used for the length of the cooldown after getting attacked
+    
+    //TODO(): try to replace the variables above with some kind of state machine ?
     
     GraphicsComponent graphics = GraphicsComponent();
 };

@@ -11,3 +11,4 @@ const int MAX_OBJS = 300;
 
 void DrawBody(b2Body& body, b2PolygonShape& shape, int thickness);
 int GetTic();
+b2World* GetWorld();
