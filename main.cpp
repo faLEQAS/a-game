@@ -250,6 +250,7 @@ void Init()
 	asset_manager = new AssetManager();
 	asset_manager->LoadSpriteSheet(SPRITE_PUNK_IDLE, "assets/punk/idle.png", Vector2D(4, 1));
 	asset_manager->LoadSpriteSheet(SPRITE_PUNK_WALK, "assets/punk/run.png", Vector2D(6, 1));
+	asset_manager->LoadSpriteSheet(SPRITE_PUNK_KICK, "assets/punk/punch.png", Vector2D(6, 1)); //its actually a kick not a punch
 	asset_manager->LoadSpriteSheet(SPRITE_TILE, "assets/scene.png", Vector2D(1, 1));
 }
 

@@ -12,7 +12,7 @@ public:
 struct GraphicsComponent
 {
 public:
-		int tic = 0;
+		int tic = 0; //the frame advances every 'x' tic
 		int sprite_id = 0;
 		//ALL IN PIXELS NOT IN METERS
 		Vector2D pos = {};

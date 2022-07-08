@@ -39,9 +39,10 @@ void Player::Update()
             on_ground = false;
         }
         
-        if (IsKeyDown(KEY_X))
+        if (IsKeyPressed(KEY_X) && (attack_time == 0) && on_ground)
         {
-            attack_time = 6;
+            attack_time = 36;
+            graphics.frame_pos.x = 0;
         }
     }
     
@@ -56,11 +57,11 @@ void Player::Update()
     if (dir == 1)
     {
         start = body->GetWorldPoint(Vector2D(0, 0));
-        end = body->GetWorldPoint(Vector2D(1.0f, 0));
+        end = body->GetWorldPoint(Vector2D(0.68f, 0));
     }
     else if (dir == -1)
     {
-        end = body->GetWorldPoint(Vector2D(-1.0f, 0));
+        end = body->GetWorldPoint(Vector2D(-0.68f, 0));
         start = body->GetWorldPoint(Vector2D(0, 0));
     }
     
@@ -70,10 +71,12 @@ void Player::Update()
     
     GetWorld()->RayCast(&raycast_callback, start, end);
     
-    DrawLineEx(p1, p2, 4, YELLOW);
+    //DrawLineEx(p1, p2, 4, YELLOW);
     
     if (attack_time > 0)
     {
+        graphics.sprite_id = SPRITE_PUNK_KICK;
+        body->SetLinearVelocity(Vector2D(0, body->GetLinearVelocity().y));
         attack_time--;
     }
     if (attacked_time > 0)
@@ -97,6 +100,11 @@ void Player::Draw()
         {
             graphics.tic = 6;
         } break;
+
+        case SPRITE_PUNK_KICK:
+        {
+            graphics.tic = 6;
+        }
     }
     
     graphics.pos = { pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO };
@@ -118,9 +126,15 @@ float Player::OnRayCastHit(Object* B, b2Fixture* fixture, float fraction)
         {
             if (attack_time > 0)
             {
-                Goomba* goomba = (Goomba*)B;
-                float velocity = 0;
-                goomba->body->SetTransform(Vector2D(0, 0), 0);
+                if ((graphics.frame_pos.x == 4) || (graphics.frame_pos.x == 5))
+                {
+                    //TODO(): Create a OnHit() function for the goomba instead of this shit
+                    Goomba* goomba = (Goomba*)B;
+                    float velocity = 0;
+                    goomba->body->SetTransform(Vector2D(0, 0), 0);
+                    goomba->dir = 1;
+                    goomba->graphics.flip_h = false;
+                }
             }
             return 0;
         }
