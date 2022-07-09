@@ -1,5 +1,6 @@
 #pragma once
 #include "consts.h"
+#include <raylib.h>
 
 
 struct Component
@@ -19,6 +20,7 @@ public:
 		Vector2D size = {};
 		Vector2D origin = {};
 		Vector2D frame_pos = {};
+		Color tint = WHITE;
 
 		bool flip_h, flip_v = false;
 

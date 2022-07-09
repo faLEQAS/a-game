@@ -17,18 +17,26 @@ static AssetManager* asset_manager = nullptr;
 static Object* objects[MAX_OBJS] = {};
 static int tic = 0;
 static b2World* worldptr = nullptr;
+static bool gameover = false;
 
 
 b2Body* CreateBody(b2World& world, b2BodyDef& def, b2Shape* fixtures, int fixture_count);
 Player* CreatePlayer(b2World* world, Vector2D pos);
 Tile* CreateTile(b2World* world, Vector2D pos, ObjectType type);
 Goomba* CreateGoomba(b2World* world, Vector2D pos);
+void DeleteObj(int id);
 bool AddObj(Object* obj);
 void Init();
+void Loop();
 void Destroy();
 void Update(b2World* world, float timestep, uint32 velocity_iters, uint32 position_iters);
 void Draw();
+void ClearObjs();
 
+void GameOver()
+{
+	gameover = true;
+}
 
 int GetTic()
 {
@@ -44,6 +52,16 @@ b2World* GetWorld()
 AssetManager* GetAssetManager()
 {
 	return asset_manager;
+}
+
+
+void ClearObjs()
+{
+	for (int i = 0; i < MAX_OBJS; i++)
+	{
+		delete objects[i];
+		objects[i] = nullptr;
+	}
 }
 
 
@@ -187,10 +205,47 @@ Goomba* CreateGoomba(b2World* world, Vector2D pos)
 }
 
 
+void DeleteObj(int id)
+{
+	for (int i = 0; i < MAX_OBJS; i++)
+	{
+		if (objects[i])
+		{
+			Object* obj = objects[i];
+			if (obj->id == id)
+			{
+				delete obj;
+				objects[i] = nullptr;
+				return;
+			}
+		}
+	}
+}
+
+
 int main(void)
 {
 	Init();
     
+	while (!WindowShouldClose())
+	{
+		Loop();
+		if (!gameover)
+		{
+			//the window should close
+			break;
+		}
+		gameover = false;
+	}
+    
+	Destroy();
+    
+	return 0;
+}
+
+
+void Loop()
+{
 	b2Vec2 gravity = b2Vec2(0.0f, 8.0f);
 	b2World world = b2World(gravity);
     
@@ -206,8 +261,8 @@ int main(void)
     
 	SetTargetFPS(60);
     
-	Player* p = CreatePlayer(&world, Vector2D(4.5f, 3.0f));
-    Goomba* g = CreateGoomba(&world, Vector2D(2.5f, 0.0f));
+	Player* p = CreatePlayer(&world, Vector2D(12.5f, 3.0f));
+    Goomba* g = CreateGoomba(&world, Vector2D(2.5f, 4.0f));
     CreateTile(&world, Vector2D(1.0f, 4.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(1.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(3.0f, 6.0f), ObjectType::TILE);
@@ -215,10 +270,18 @@ int main(void)
     CreateTile(&world, Vector2D(7.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(9.0f, 6.0f), ObjectType::TILE);
 	CreateTile(&world, Vector2D(11.0f, 6.0f), ObjectType::TILE);
-	CreateTile(&world, Vector2D(15.0f, 6.0f), ObjectType::TILE_JUMP);
+	CreateTile(&world, Vector2D(13.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(15.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(17.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(19.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(21.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(23.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(25.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(27.0f, 6.0f), ObjectType::TILE);
+	CreateTile(&world, Vector2D(27.0f, 4.0f), ObjectType::TILE);
     
     
-	while (!WindowShouldClose())
+	while (!WindowShouldClose() && !gameover)
 	{
         
 		if (IsKeyDown(KEY_LEFT_CONTROL))
@@ -236,10 +299,7 @@ int main(void)
         
 		tic++;
 	}
-    
-	Destroy();
-    
-	return 0;
+	ClearObjs();
 }
 
 
@@ -301,15 +361,18 @@ bool AddObj(Object* obj)
 		if (objects[i] == nullptr)
 		{
 			objects[i] = obj;
+			obj->id = i;
 			return true;
 		}
 		else if (objects[i]->active == false)
 		{
 			delete objects[i];
 			objects[i] = obj;
+			obj->id = i;
 			return true;
 		}
 	}
+	obj->id = -2;
 	return false;
 }
 

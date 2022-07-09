@@ -35,7 +35,7 @@ void Player::Update()
         
         if (IsKeyDown(KEY_SPACE) && on_ground)
         {
-            body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -7.0f));
+            body->SetLinearVelocity(Vector2D(body->GetLinearVelocity().x, -4.0f));
             on_ground = false;
         }
         
@@ -82,6 +82,12 @@ void Player::Update()
     if (attacked_time > 0)
     {
         attacked_time--;
+    }
+
+    if (body->GetLinearVelocity().y > 0)
+    {
+        //TODO(): Find another way instead of this ugly shit
+        on_ground = false;
     }
 }
 
@@ -178,10 +184,12 @@ void Player::StartContact(Object* obj, b2Fixture* fixture)
         }
         //else
         {
+            Goomba* g = (Goomba*)obj;
             //get attacked by the goomba
-            attacked_time = 5;
-            body->SetLinearVelocity({ -10.0f,
-                                        -10.0f });
+            // attacked_time = 5;
+            // body->SetLinearVelocity({ -10.0f,
+            //                             -10.0f });
+            GameOver();
         }
     }
     
@@ -199,7 +207,7 @@ void Player::EndContact(Object* obj, b2Fixture* fixture)
 
 void Goomba::Update()
 {
-    body->SetLinearVelocity({1.0f * dir ,body->GetLinearVelocity().y}
+    body->SetLinearVelocity({4.0f * dir ,body->GetLinearVelocity().y}
                             );
     pos = body->GetWorldPoint(Vector2D(-0.5f, -1.25f));
     shadow_body->SetLinearVelocity(body->GetLinearVelocity());
@@ -211,6 +219,7 @@ void Goomba::Draw()
 {
     graphics.pos = {pos.x * METER_TO_PIXEL_RATIO, pos.y * METER_TO_PIXEL_RATIO};
     graphics.SetFlipOrigin();
+    graphics.tint = RED;
     graphics.Draw();
     graphics.NextSprite();
     

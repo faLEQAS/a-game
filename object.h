@@ -19,6 +19,7 @@ enum ObjectType
 struct Object
 {
     public:
+    int id = -1;
     ObjectType type = ObjectType::OBJECT_NONE;
     virtual void Update() {};
     virtual void Draw() {};

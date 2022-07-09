@@ -17,7 +17,7 @@ void GraphicsComponent::Draw()
         Rectangle frame = ss->GetFrame(frame_pos, flip_h, flip_v);
         
         DrawTexturePro(ss->texture, frame, dest, { origin.x, origin.y }, 0,
-                       WHITE);
+                       tint);
     }
     else
     {
